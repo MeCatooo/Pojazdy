@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace PojazdyV2
 {
-    public abstract class AbstractPojazd : IState, IEngined, ISrodowiskoChanger
+    public abstract class AbstractPojazd : IState, IEngined, ISrodowiskoChanger, IComparable<AbstractPojazd>
     {
-        protected AbstractPojazd? KolejnyTyp { get; init; }
+        //public interface I
+        protected virtual AbstractPojazd? KolejnyTyp { get; init; }
         //public int Speed
         //{
         //    //get => Speed; protected set
@@ -30,8 +31,8 @@ namespace PojazdyV2
 
         public int Move(Speed speed)
         {
-            //this.Speed = new Speed(State.Move(speed), Srodowisko.SpeedUnits);
-            Speed += speed;
+            this.Speed += new Speed(State.Move(speed), Srodowisko.SpeedUnits);
+            //Speed += State.Move(speed);
             return Speed.GetSpeed();
         }
         public void TurnON()
@@ -71,12 +72,10 @@ namespace PojazdyV2
             if (KolejnyTyp != null)
                 Type += "Wielozadaniowy\n";
             else
-                Type += GetType().Name;
+                Type += GetType().Name + "\n";
             Type += $"Srodowisko: {Srodowisko.GetType().Name}\nAktualna predkosc: {Speed.GetSpeed(Srodowisko.SpeedUnits)} {Srodowisko.SpeedUnits}\nMin: {Srodowisko.Min} Max: {Srodowisko.Max}\n";
             if (Engine != null)
                 Type += Engine.ToString();
-            if (KolejnyTyp != null)
-                return Type + KolejnyTyp.ToString();
             return Type;
         }
         protected bool IsSameType(AbstractPojazd abstractPojazd, AbstractPojazd? abstractPojazd1)
@@ -104,18 +103,58 @@ namespace PojazdyV2
             Speed = new Speed(Speed.GetSpeed(srodowisko.SpeedUnits), srodowisko.SpeedUnits);
             return srodowisko;
         }
+        public abstract string AddAtributes();
+
+        public int CompareTo(AbstractPojazd? other)
+        {
+            if(other == null)
+                throw new ArgumentNullException();
+            if (this > other)
+                return -1;
+            else if (this < other)
+                return 1;
+            else
+                return 0;
+        }
+
+        public static bool operator <(AbstractPojazd left, AbstractPojazd right)
+        {
+            return left.Speed.GetSpeed()< right.Speed.GetSpeed();
+        }
+
+        public static bool operator <=(AbstractPojazd left, AbstractPojazd right)
+        {
+            return left.Speed.GetSpeed() <= right.Speed.GetSpeed();
+        }
+
+        public static bool operator >(AbstractPojazd left, AbstractPojazd right)
+        {
+            return left.Speed.GetSpeed() > right.Speed.GetSpeed();
+        }
+
+        public static bool operator >=(AbstractPojazd left, AbstractPojazd right)
+        {
+            return left.Speed.GetSpeed() >= right.Speed.GetSpeed();
+        }
     }
     public class Ladowy : AbstractPojazd
     {
-        public Ladowy(AbstractPojazd? kolejnyTyp = null, Engine? engine = null) : base(kolejnyTyp, engine) { }
+        public Ladowy(AbstractPojazd? kolejnyTyp = null, Engine? engine = null, int kola = 10) : base(kolejnyTyp, engine) 
+        {
+            IloscKol = kola;
+        }
         protected override ISrodowisko DozwoloneSrodowisko { get; } = new Lad();
-        public int IloscKol { get; }
+        public virtual int IloscKol { get; }
         public override string ToString()
         {
+            return base.ToString() + AddAtributes();
+        }
+
+        public override string AddAtributes()
+        {
             if (KolejnyTyp != null)
-                return KolejnyTyp.ToString() + $"Ilość kół: {IloscKol}\n";
-            else
-                return $"Ilość kół: {IloscKol}\n";
+                return KolejnyTyp.AddAtributes() + $"Ilość kół: {IloscKol}\n";
+            return $"Ilość kół: {IloscKol}\n";
         }
     }
     public class Powietrzny : AbstractPojazd
@@ -125,27 +164,39 @@ namespace PojazdyV2
         protected override ISrodowisko DozwoloneSrodowisko { get; } = new Powietrze();
         public override ISrodowisko MoveToNext(ISrodowisko srodowisko)
         {
-            //throw new Exception(Speed.GetSpeed(Srodowisko.SpeedUnits).ToString());
-            //int tmp = new Speed(Srodowisko.Min, Srodowisko.SpeedUnits).GetSpeed(Speed.SpeedUnits.ms);
-            //throw new Exception(Srodowisko.Min.ToString());
             if (Speed.GetSpeed(Speed.SpeedUnits.ms) < new Speed(srodowisko.Min, srodowisko.SpeedUnits).GetSpeed(Speed.SpeedUnits.ms))
                 throw new Exception("Pojazd musi się rozpiędzić");
             return base.MoveToNext(srodowisko);
         }
+        public override string ToString()
+        {
+            return base.ToString() + AddAtributes();
+        }
+        public override string AddAtributes()
+        {
+            if (KolejnyTyp != null)
+                return KolejnyTyp.AddAtributes();
+            return "";
+        }
     }
     public class Wodny : AbstractPojazd
     {
-        public Wodny(AbstractPojazd? kolejnyTyp = null, Engine? engine = null) : base(kolejnyTyp, engine) { }
+        public Wodny(AbstractPojazd? kolejnyTyp = null, Engine? engine = null, int wypornosc = 10) : base(kolejnyTyp, engine) 
+        { 
+        Wypornosc = wypornosc;
+        }
 
         protected override ISrodowisko DozwoloneSrodowisko { get; } = new Woda();
-        public int Wypornosc { get; } = 10;
+        public virtual int Wypornosc { get; }
         public override string ToString()
         {
+            return base.ToString() + AddAtributes();
+        }
+        public override string AddAtributes()
+        {
             if (KolejnyTyp != null)
-                return KolejnyTyp.ToString() + $"Wypornosc: {Wypornosc}\n";
-            else
-                return $"Wypornosc: {Wypornosc}\n";
+                return KolejnyTyp.AddAtributes() + $"Wypornosc: {Wypornosc}\n";
+            return $"Wypornosc: {Wypornosc}\n";
         }
     }
-
 }

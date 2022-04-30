@@ -34,7 +34,7 @@ namespace PojazdyV2
                     break;
             }
         }
-        public int GetSpeed()
+        public int GetSpeed( SpeedUnits unit = SpeedUnits.kmh)
         {
             switch (unit)
             {
@@ -46,6 +46,10 @@ namespace PojazdyV2
                     return (int)(speed / 1.852);
                 default: return speed;
             }
+        }
+        public static Speed operator +(Speed a, Speed b)
+        {
+            return new Speed(a.GetSpeed()+b.GetSpeed(),a.unit);
         }
     }
 }

@@ -22,6 +22,7 @@ namespace PojazdyV2
     {
         public int Move(Speed speed)
         {
+            Console.WriteLine("Pojazd jest zgaszony");
             return 0;
         }
     }

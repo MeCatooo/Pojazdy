@@ -15,14 +15,9 @@ namespace PojazdyV2
     }
     public interface ISrodowiskoChanger
     {
-        public ISrodowisko Srodowisko { get; protected set; }
+        public ISrodowisko Srodowisko { get; }
         public List<ISrodowisko> DozwoloneSrodowiska { get; }
-        public ISrodowisko MoveToNext(ISrodowisko srodowisko)
-        {
-            if (!DozwoloneSrodowiska.Contains(srodowisko))
-                throw new ArgumentException();
-            return srodowisko;
-        }
+        public ISrodowisko MoveToNext(ISrodowisko srodowisko);
     }
     public class Lad : ISrodowisko
     {
@@ -33,13 +28,13 @@ namespace PojazdyV2
     public class Woda : ISrodowisko
     {
         public int Min => 1;
-        public int Max => 3550;
-        public Speed.SpeedUnits SpeedUnits => Speed.SpeedUnits.kmh;
+        public int Max => 40;
+        public Speed.SpeedUnits SpeedUnits => Speed.SpeedUnits.knots;
     }
     public class Powietrze : ISrodowisko
     {
-        public int Min => 1;
-        public int Max => 35550;
-        public Speed.SpeedUnits SpeedUnits => Speed.SpeedUnits.kmh;
+        public int Min => 20;
+        public int Max => 200;
+        public Speed.SpeedUnits SpeedUnits => Speed.SpeedUnits.ms;
     }
 }

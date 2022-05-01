@@ -7,9 +7,15 @@ using PojazdyV2;
 
 namespace PojazdyV2.Pojazdy
 {
+    //Aby stworzyć właśną klasę pojazdu należy odziedziczyć jedną z klas typów (Ladowy, Wodny, Powietrzny).
+    //Następnie stworzyć konstrktor który wywołuje konstruktor bazowy.
+    //W konstruktorze można podaj opcjonalnie kolejny typ lub silnik.
+    //Aby utworzyć >2 typowy pojazd należy przekazać do konstruktora Typ wraz z kolejnym typem jako jego paramatr np. new Wodny(new Powietrzny()) - w ten sposób można stworzyć 3 typowy pojazd.
+    //Aby edytować charakterystyczną cechę dla danego typu należy napisać ją w klasie, jednak dla kolejnego typu należy to już zrobić w jego kostruktorze, przykład Amfibia 
+    //Przykładowe poprawnie stworzone pojazdy:
     public class Skuter : Ladowy
     {
-       public Skuter() : base(new Wodny(), new Engine(100, Engine.TypPaliwa.benzyna)){}
+       public Skuter() : base(new Wodny(), new Engine(30, Engine.TypPaliwa.benzyna)){}
     }
     public class Samolot : Powietrzny
     {
@@ -29,7 +35,7 @@ namespace PojazdyV2.Pojazdy
     }
     public class Zaglowka : Wodny
     {
-        public Zaglowka() : base ( null, null) { }
+        public Zaglowka() : base (null, null) { }
         public override int Wypornosc { get; } = 10;
 
     }

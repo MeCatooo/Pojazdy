@@ -8,38 +8,36 @@ namespace PojazdyV2
 {
     public abstract class AbstractPojazd : IState, IEngined, ISrodowiskoChanger, IComparable<AbstractPojazd>
     {
-        //public interface I
         protected virtual AbstractPojazd? KolejnyTyp { get; init; }
-        //public int Speed
-        //{
-        //    //get => Speed; protected set
-        //    //{
-        //    //    if (Speed - value > 0)
-        //    //        Speed = value;
-        //    //    else
-        //    //        throw new ArgumentOutOfRangeException();
-        //    //}
-        //    //get;
-        //    //protected set;
-        //}
         public Speed Speed { get; protected set; } = new Speed(0);
         public IState State { get; protected set; } = new StateOff();
         public ISrodowisko Srodowisko { get; protected set; } = new Lad();
         protected abstract ISrodowisko DozwoloneSrodowisko { get; }
         public Engine? Engine { get; } = null;
         public List<ISrodowisko> DozwoloneSrodowiska { get; } = new List<ISrodowisko>();
-
+        /// <summary>
+        /// Zmienia prędkość pojazdu
+        /// </summary>
+        /// <param name="speed"></param>
+        /// <returns></returns>
         public int Move(Speed speed)
         {
             this.Speed += new Speed(State.Move(speed), Srodowisko.SpeedUnits);
             //Speed += State.Move(speed);
             return Speed.GetSpeed();
         }
+        /// <summary>
+        /// Uruchamia pojazd
+        /// </summary>
         public void TurnON()
         {
             State = new StateOn();
             Speed = new Speed(Srodowisko.Min);
         }
+        /// <summary>
+        /// Wyłącza pojazd
+        /// </summary>
+        /// <exception cref="Exception"></exception>
         public void TurnOFF()
         {
             if (Srodowisko is Powietrze)
@@ -66,6 +64,10 @@ namespace PojazdyV2
             else
                 Engine = engine;
         }
+        /// <summary>
+        /// Zwraca stan oraz prametry pojazdu
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string Type = $"Typ: Pojazd\nPrzeznaczenie: ";
@@ -73,21 +75,38 @@ namespace PojazdyV2
                 Type += "Wielozadaniowy\n";
             else
                 Type += GetType().Name + "\n";
-            Type += $"Srodowisko: {Srodowisko.GetType().Name}\nAktualna predkosc: {Speed.GetSpeed(Srodowisko.SpeedUnits)} {Srodowisko.SpeedUnits}\nMin: {Srodowisko.Min} Max: {Srodowisko.Max}\n";
+            if (Speed.GetSpeed() <= 0)
+                Type += "W ruchu: false\n";
+            else
+                Type += $"W ruchu: true\nAktualna predkosc: { Speed.GetSpeed(Srodowisko.SpeedUnits)} { Srodowisko.SpeedUnits}\n";
+            Type += $"Srodowisko: {Srodowisko.GetType().Name}\nMin: {Srodowisko.Min} Max: {Srodowisko.Max}\n";
             if (Engine != null)
                 Type += Engine.ToString();
             return Type;
         }
+        /// <summary>
+        /// Wewnętrzna funkcja do określania czy nie powtórzono typów
+        /// </summary>
+        /// <param name="abstractPojazd"></param>
+        /// <param name="abstractPojazd1"></param>
+        /// <returns></returns>
         protected bool IsSameType(AbstractPojazd abstractPojazd, AbstractPojazd? abstractPojazd1)
         {
             if (abstractPojazd1 == null)
                 return false;
             if (abstractPojazd.GetType().Name == abstractPojazd1.GetType().Name)
                 return true;
+            if (abstractPojazd.GetType().BaseType == abstractPojazd1.GetType().BaseType || abstractPojazd.GetType().BaseType == abstractPojazd1.GetType())
+                return true;
             else
                 return false;
         }
-
+        /// <summary>
+        /// Zmienia środowiko pojazdu
+        /// </summary>
+        /// <param name="srodowisko"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public virtual ISrodowisko MoveToNext(ISrodowisko srodowisko)
         {
             foreach (var item in DozwoloneSrodowiska)
@@ -97,17 +116,22 @@ namespace PojazdyV2
             }
             throw new ArgumentException();
         }
+        
         private ISrodowisko ChangeSrodowiko(ISrodowisko srodowisko)
         {
             Srodowisko = srodowisko;
             Speed = new Speed(Speed.GetSpeed(srodowisko.SpeedUnits), srodowisko.SpeedUnits);
             return srodowisko;
         }
+        /// <summary>
+        /// Musi wywoływać następny typ i zwracać cechę lub gdy kolejny nie istnieje zwracać tylko cechę 
+        /// </summary>
+        /// <returns>Zwraca chrakterystyczne cechy danego typu</returns>
         public abstract string AddAtributes();
 
         public int CompareTo(AbstractPojazd? other)
         {
-            if(other == null)
+            if (other == null)
                 throw new ArgumentNullException();
             if (this > other)
                 return -1;
@@ -119,7 +143,7 @@ namespace PojazdyV2
 
         public static bool operator <(AbstractPojazd left, AbstractPojazd right)
         {
-            return left.Speed.GetSpeed()< right.Speed.GetSpeed();
+            return left.Speed.GetSpeed() < right.Speed.GetSpeed();
         }
 
         public static bool operator <=(AbstractPojazd left, AbstractPojazd right)
@@ -139,7 +163,7 @@ namespace PojazdyV2
     }
     public class Ladowy : AbstractPojazd
     {
-        public Ladowy(AbstractPojazd? kolejnyTyp = null, Engine? engine = null, int kola = 10) : base(kolejnyTyp, engine) 
+        public Ladowy(AbstractPojazd? kolejnyTyp = null, Engine? engine = null, int kola = 10) : base(kolejnyTyp, engine)
         {
             IloscKol = kola;
         }
@@ -181,9 +205,9 @@ namespace PojazdyV2
     }
     public class Wodny : AbstractPojazd
     {
-        public Wodny(AbstractPojazd? kolejnyTyp = null, Engine? engine = null, int wypornosc = 10) : base(kolejnyTyp, engine) 
-        { 
-        Wypornosc = wypornosc;
+        public Wodny(AbstractPojazd? kolejnyTyp = null, Engine? engine = null, int wypornosc = 10) : base(kolejnyTyp, engine)
+        {
+            Wypornosc = wypornosc;
         }
 
         protected override ISrodowisko DozwoloneSrodowisko { get; } = new Woda();

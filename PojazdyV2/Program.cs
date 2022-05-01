@@ -24,7 +24,8 @@ using PojazdyV2;
 ////Console.WriteLine(Ladowy.ToString());
 ////AbstractPojazd AbstractPojazd = new Ladowy(new AbstractPojazd());
 List<AbstractPojazd> lista = new List<AbstractPojazd>();
-Amfibia skuter = new Amfibia();
+Zaglowka skuter = new Zaglowka();
+//Wodny Wodny = new Wodny(new Wodny());
 skuter.TurnON();
 skuter.Move(new Speed());
 lista.Add(skuter);
@@ -48,5 +49,6 @@ foreach (var item in lista)
     if(item.Srodowisko is Lad)
         Console.WriteLine(item);
 }
+Console.WriteLine(skuter.GetType().BaseType);
 
 
